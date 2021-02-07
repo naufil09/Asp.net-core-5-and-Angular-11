@@ -1,3 +1,5 @@
+using App.Api.Graphql.Mutation;
+using App.Api.Graphql.Queries;
 using Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -12,6 +14,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HotChocolate;
+using HotChocolate.AspNetCore;
+using HotChocolate.Execution.Configuration;
+using HotChocolate.Types;
+using GraphQL;
+using GraphQL.Server.Ui.Playground;
 
 namespace App
 {
@@ -25,6 +33,7 @@ namespace App
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
+        [Obsolete]
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddInfrastructure(Configuration);
@@ -34,9 +43,25 @@ namespace App
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "App", Version = "v1" });
             });
+
+            //services.AddSingleton<IDependencyResolver>(c => new FuncDependencyResolver(type => c.GetRequiredService(type)));
+
+            services.AddGraphQL(sp =>
+                    SchemaBuilder.New()
+                        .AddServices(sp)
+                        .AddQueryType(d => d.Name("Query"))
+                        .AddType<TestQueries>()
+                        .AddMutationType(d => d.Name("Mutation"))
+                        .AddType<TestMutations>()
+                        //.AddAuthorizeDirectiveType()
+                        .BindClrType<string, StringType>()
+                        .BindClrType<Guid, IdType>()
+                        .Create());
+            //new QueryExecutionOptions { ForceSerialExecution = true });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        [Obsolete]
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -56,6 +81,9 @@ namespace App
             {
                 endpoints.MapControllers();
             });
+
+            app.UseGraphQL("/graphql").UsePlayground();
+            app.UseGraphQLPlayground(options: new GraphQLPlaygroundOptions()); // ui/playground
         }
     }
 }
