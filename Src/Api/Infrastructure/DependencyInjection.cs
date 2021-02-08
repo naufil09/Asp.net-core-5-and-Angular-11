@@ -1,5 +1,7 @@
 ﻿using Infrastructure.Identity;
 using Infrastructure.Persistence;
+using Infrastructure.Repository;
+using Infrastructure.Repository.IRepository;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -25,7 +27,7 @@ namespace Infrastructure
             services.AddAuthentication()
                 .AddIdentityServerJwt();
 
-            //services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             return services;
         }
     }

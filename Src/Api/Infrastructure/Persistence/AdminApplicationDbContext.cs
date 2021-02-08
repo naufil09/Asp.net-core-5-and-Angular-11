@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Core.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,5 +12,7 @@ namespace Infrastructure.Persistence
         : base(options)
         {
         }
+
+        public DbSet<User> Users { get; set; }
     }
 }
