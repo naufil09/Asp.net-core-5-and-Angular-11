@@ -3,23 +3,20 @@ using App.Api.Graphql.Queries;
 using Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using HotChocolate;
 using HotChocolate.AspNetCore;
-using HotChocolate.Execution.Configuration;
 using HotChocolate.Types;
-using GraphQL;
 using GraphQL.Server.Ui.Playground;
+using Core.Common;
+using Microsoft.Extensions.Options;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 namespace App
 {
@@ -36,6 +33,32 @@ namespace App
         [Obsolete]
         public void ConfigureServices(IServiceCollection services)
         {
+            IConfigurationSection appSettingsSection = Configuration.GetSection("AppSettings");
+            services.Configure<AppSettings>(appSettingsSection)
+                            .AddSingleton(sp => sp.GetRequiredService<IOptions<AppSettings>>().Value);
+
+            // configure jwt authentication start
+            AppSettings appSettings = appSettingsSection.Get<AppSettings>();
+            byte[] key = Encoding.ASCII.GetBytes(appSettings.Secret);
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
+            // configure jwt authentication end
+
             services.AddInfrastructure(Configuration);
 
             services.AddControllers();
@@ -53,6 +76,7 @@ namespace App
                         .AddType<TestQueries>()
                         .AddMutationType(d => d.Name("Mutation"))
                         .AddType<TestMutations>()
+                        .AddType<UserMutations>()
                         //.AddAuthorizeDirectiveType()
                         .BindClrType<string, StringType>()
                         .BindClrType<Guid, IdType>()
@@ -75,6 +99,7 @@ namespace App
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
