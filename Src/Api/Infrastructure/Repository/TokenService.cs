@@ -1,17 +1,12 @@
-﻿using Infrastructure.Repository.IRepository;
-using Microsoft.AspNetCore.Identity;
+﻿using Core.Common;
+using Core.Entities;
+using Infrastructure.Repository.IRepository;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
-using System.IdentityModel.Tokens.Jwt;
-using Core.Entities;
-using Microsoft.Extensions.Configuration;
-using Infrastructure.Persistence;
-using Core.Common;
 
 namespace Infrastructure.Repository
 {
@@ -27,30 +22,30 @@ namespace Infrastructure.Repository
         {
             try
             {
-                var claims = new List<Claim>
+                List<Claim> claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
             };
 
-                var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
+                SigningCredentials creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
 
-                var tokenDescriptor = new SecurityTokenDescriptor
+                SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = new ClaimsIdentity(claims),
                     Expires = DateTime.Now.AddDays(7),
                     SigningCredentials = creds
                 };
 
-                var tokenHandler = new JwtSecurityTokenHandler();
+                JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
 
-                var token = tokenHandler.CreateToken(tokenDescriptor);
+                SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
 
                 return tokenHandler.WriteToken(token);
             }
             catch (Exception ex)
             {
-                var msg = ex.Message;
+                string msg = ex.Message;
             }
             return null;
         }

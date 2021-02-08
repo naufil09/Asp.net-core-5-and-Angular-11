@@ -1,22 +1,22 @@
 using App.Api.Graphql.Mutation;
 using App.Api.Graphql.Queries;
+using Core.Common;
+using GraphQL.Server.Ui.Playground;
+using HotChocolate;
+using HotChocolate.AspNetCore;
+using HotChocolate.Types;
 using Infrastructure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
-using HotChocolate;
-using HotChocolate.AspNetCore;
-using HotChocolate.Types;
-using GraphQL.Server.Ui.Playground;
-using Core.Common;
-using Microsoft.Extensions.Options;
 using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 
 namespace App
 {
