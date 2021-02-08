@@ -2,10 +2,6 @@
 using HotChocolate;
 using HotChocolate.Types;
 using Infrastructure.Repository.IRepository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace App.Api.Graphql.Mutation
 {
@@ -14,7 +10,7 @@ namespace App.Api.Graphql.Mutation
     {
         public string Authentication([Service] IUnitOfWork unitOfWork, LoginInput inputData)
         {
-            var user = unitOfWork.User.Authenticate(inputData.Email, inputData.Password);
+            Core.Entities.User user = unitOfWork.User.Authenticate(inputData.Email, inputData.Password);
             if (user != null)
             {
                 return unitOfWork.Token.CreateToken(user);

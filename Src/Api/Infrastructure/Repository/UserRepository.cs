@@ -3,10 +3,7 @@ using Core.Entities;
 using Infrastructure.Persistence;
 using Infrastructure.Repository.IRepository;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Repository
 {
@@ -25,7 +22,7 @@ namespace Infrastructure.Repository
         {
             try
             {
-                var user = _db.Users.SingleOrDefault(x => x.Email == email && x.Password == password);
+                User user = _db.Users.SingleOrDefault(x => x.Email == email && x.Password == password);
 
                 if (user == null)
                 {
